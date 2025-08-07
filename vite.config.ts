@@ -5,17 +5,18 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  base: '/teachera/', 
   server: {
     proxy: {
-      '/api':{
-        target: 'http://106.52.162.78:8080/',
-        // target: 'http://127.0.0.1:8080/',
+      '/teachera/api':{
+        // target: 'http://106.52.162.78:8080/',
+        target: 'http://120.48.91.203:8082/',
         changeOrigin: true,
-        // rewrite: (path) => path.replace(/^\/api/, ''),
+        rewrite: (path) => path.replace(/^\/teachera/, ''),
       },
     },
     host: "::",
-    port: 8000,
+    port: 8081,
   },
   plugins: [
     react(),

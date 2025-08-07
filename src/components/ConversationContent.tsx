@@ -519,7 +519,7 @@ const convertApiDataToMessages = (apiData: any): MessageData[] => {
         bodyData.imageUrl = initImageUrl;
       }
 
-      const response = await fetch(`/api/v2/chat`, {
+      const response = await fetch(`/teachera/api/v2/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

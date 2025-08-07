@@ -10,6 +10,7 @@ import { toast } from "@/hooks/use-toast";
 // 创建axios实例
 const service = axios.create({
   // baseURL: "http://localhost:5173",
+  baseURL: '/teachera',
   // baseURL: import.meta.env.VITE_API_URL, // 从环境变量获取基础API地址
   timeout: 15000, // 请求超时时间
   // 设置跨域 Cookie
@@ -52,7 +53,7 @@ service.interceptors.response.use(
             description: '登录已过期，请重新登录'
           })
           localStorage.removeItem('token')
-          window.location.href = '/login'
+          window.location.href = '/teachera/login'
           break
         case 403:
           toast({
@@ -95,7 +96,7 @@ service.interceptors.response.use(
             description: msg
           })
           localStorage.removeItem('token')
-          window.location.href = '/login'
+          window.location.href = '/teachera/login'
           break
         case 403:
           toast({

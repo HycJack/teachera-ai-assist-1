@@ -16,7 +16,7 @@ const Login = () => {
     e.preventDefault();
     
     try {
-      const endpoint = isLogin ? '/api/login' : '/api/register';
+      const endpoint = isLogin ? '/teachera/api/login' : '/teachera/api/register';
       const formData = isLogin 
         ? { username, password }
         : { username, password, email, invite_code: inviteCode };
