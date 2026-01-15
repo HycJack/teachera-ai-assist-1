@@ -11,7 +11,6 @@ import remarkGfm from "remark-gfm"
 import useHtmlStore from "@/store/store"
 import { ReasoningBlock } from "./ui/reasoning-block"
 import FileModal from "./ui/file-modal"
-import { log } from "console"
 
 // 扩展 ConversationContentProps 接口
 // interface ExtendedConversationContentProps extends ConversationContentProps {
@@ -403,7 +402,9 @@ const ConversationContent = ({
         }
         const convertedMessages = convertApiDataToMessages(data.message);
         console.log("转换后的消息", convertedMessages)
-        setMessages(convertedMessages)
+        if (convertedMessages.length > 0) {
+          setMessages(convertedMessages)
+        }
       } catch (error) {
         console.error('获取会话消息列表失败:', error)
       } finally {
@@ -427,7 +428,7 @@ const convertApiDataToMessages = (apiData: any): MessageData[] => {
           id: item.id,
           type: 'user',
           answer: item.message,
-          imageUrl: item.resource[0]?.url,
+          imageUrl: (item.resource[0]) == null ? "": item.resource[0].url,
           timestamp: new Date(item.createdAt).toLocaleTimeString('zh-CN', { 
             hour: '2-digit', 
             minute: '2-digit' 
@@ -441,20 +442,38 @@ const convertApiDataToMessages = (apiData: any): MessageData[] => {
         
         // 合并reasoning内容（前两条）
         let reasoning = '';
-        if (aiMessages.length >= 1) {
+        if (aiMessages.length >= 2) {
           reasoning = aiMessages[0].message
         }
         
         // 获取answer内容（第三条）
         let answer = '';
-        // if (aiMessages.length >= 2) {
-        //   answer = aiMessages[1].message;
-        // }
+        if (aiMessages.length == 1) {
+          answer = aiMessages[0].message
+        }
+        let htmlContent = '';
+        if (aiMessages.length >= 2) {
+          answer = aiMessages[1].message;
+          // console.log(answer)
+          if (aiMessages[1].message.match(/```html[\s\S]*```/)) {
+            // 截取html包裹的内容
+            htmlContent = aiMessages[1].message.match(/```html[\s\S]*```/)[0]
+            htmlContent = htmlContent.replace("```html", "").replace("```", "");
+            // console.log(htmlContent)
+          }
+        }
         
         // 获取htmlContent内容（第四条）
-        let htmlContent = '';
         if (aiMessages.length >= 3) {
-          htmlContent = aiMessages[2].message;
+          for (let i = 2; i < aiMessages.length; i++) {
+            console.log(aiMessages[i].stage)
+            if (aiMessages[i].stage == 3){
+              htmlContent = aiMessages[i].message;
+            }else{
+              htmlContent = aiMessages[i].message;
+              htmlContent = htmlContent.replace("```html", "").replace("```", "");
+            }
+          }
         }
         
         // 计算执行时间
@@ -484,7 +503,7 @@ const convertApiDataToMessages = (apiData: any): MessageData[] => {
 };
 
   // 合并后的统一消息发送函数
-  const handleSendMessage = async (message: string, initImageUrl: string, isInitial: boolean) => {
+  const handleSendMessage = async (message: string, initImageUrl: string, isInitial = false) => {
     if (!message.trim() || !conversationId) return;
     setLoading(true)
     // 创建临时用户消息
@@ -691,6 +710,7 @@ const convertApiDataToMessages = (apiData: any): MessageData[] => {
   // 用户点击发送时
   const handleSend = () => {
     handleSendMessage(newMessage, initialImgurl , false);
+    scrollToBottom();
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
